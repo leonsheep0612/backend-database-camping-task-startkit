@@ -222,11 +222,12 @@ where user_id  = (select id from "USER" where name = '王小明');
     -- 1. 預約人設為`王小明`
     -- 2. 預約時間`booking_at` 設為2024-11-24 17:10:25
     -- 3. 狀態`status` 設定為即將授課
- insert into "COURSE_BOOKING"(user_id,course_id,booking_at,status) values
-((select id from "USER" where name = '王小明'),
+insert into "COURSE_BOOKING"(user_id ,course_id ,booking_at ,status) 
+values(
+    (select id from "USER" where name = '王小明'),
 (select id from "COURSE" where user_id = (select id from "USER" where email = 'lee2000@hexschooltest.io')),
 '2024-11-24 17:10:25',
-  '即將授課');
+'即將授課');
 
 -- 5-4. 查詢：取得王小明所有的預約紀錄，包含取消預約的紀錄
 select * from "COURSE_BOOKING"
@@ -236,27 +237,27 @@ where user_id = (select id from "USER" where name = '王小明');
     -- 1. 請在該筆預約記錄他的加入直播室時間 `join_at` 設為2024-11-25 14:01:59
     -- 2. 狀態`status` 設定為上課中
 
-    update "COURSE_BOOKING"
+update "COURSE_BOOKING"
 set join_at = '2024-11-25 14:01:59', status = '上課中'
 where user_id = (select id from "USER" where name = '王小明') 
 and course_id = (select id from "COURSE" where user_id = (select id from "USER" where email = 'lee2000@hexschooltest.io'))
 and status = '即將授課';
 
 -- 5-6. 查詢：計算用戶王小明的購買堂數，顯示須包含以下欄位： user_id , total。 (需使用到 SUM 函式與 Group By)
-select
-"CREDIT_PURCHASE".user_id,
-sum("CREDIT_PURCHASE".purchased_credits) as total 
- from "CREDIT_PURCHASE"
-where "CREDIT_PURCHASE".user_id = (select id from "USER" where email = 'wXlTq@hexschooltest.io')
+select 
+"CREDIT_PURCHASE".user_id, 
+sum("CREDIT_PURCHASE".purchased_credits) as total
+  from "CREDIT_PURCHASE" 
+  where "CREDIT_PURCHASE".user_id = (select id from "USER" where email = 'wXlTq@hexschooltest.io')
   group by "CREDIT_PURCHASE".user_id;
 
 -- 5-7. 查詢：計算用戶王小明的已使用堂數，顯示須包含以下欄位： user_id , total。 (需使用到 Count 函式與 Group By)
-select
-"COURSE_BOOKING".user_id,
+select 
+  "COURSE_BOOKING".user_id, 
 count(*) as total
 from "COURSE_BOOKING" 
 where "COURSE_BOOKING".user_id = (select id from "USER" where email = 'wXlTq@hexschooltest.io')
-and status != '課程已取消'
+  and status != '課程已取消'
 group by "COURSE_BOOKING".user_id;
 
 -- 5-8. [挑戰題] 查詢：請在一次查詢中，計算用戶王小明的剩餘可用堂數，顯示須包含以下欄位： user_id , remaining_credit
@@ -266,26 +267,18 @@ group by "COURSE_BOOKING".user_id;
     -- inner join ( 用戶王小明的已使用堂數) as "COURSE_BOOKING"
     -- on "COURSE_BOOKING".user_id = "CREDIT_PURCHASE".user_id;
 
-    select 
-  "CREDIT_PURCHASE".user_id,
-  ("CREDIT_PURCHASE".total_credit - COALESCE("COURSE_BOOKING".used_credit, 0)) as remaining_credit
-from (
-  -- 用戶王小明的購買堂數
-  select 
-    "CREDIT_PURCHASE".user_id,
-    sum("CREDIT_PURCHASE".purchased_credits) as total_credit
-  from "CREDIT_PURCHASE"
-  where "CREDIT_PURCHASE".user_id = (select id from "USER" where email = 'wXlTq@hexschooltest.io')
-  group by "CREDIT_PURCHASE".user_id
-) as "CREDIT_PURCHASE"
-inner join (
-  -- 用戶王小明的已使用堂數
-  select 
-    "COURSE_BOOKING".user_id,
-    count(*) as used_credit
-  from "COURSE_BOOKING"
-  where "COURSE_BOOKING".user_id = (select id from "USER" where email = 'wXlTq@hexschooltest.io')
-    and status != '課程已取消'
-  group by "COURSE_BOOKING".user_id
-) as "COURSE_BOOKING"
-on "COURSE_BOOKING".user_id = "CREDIT_PURCHASE".user_id;
+select 
+    "CREDIT_PURCHASE".user_id, 
+    (sum("CREDIT_PURCHASE".purchased_credits) 
+     - 
+     (select COUNT(*) 
+      from "COURSE_BOOKING" 
+      where user_id = "CREDIT_PURCHASE".user_id 
+        and status in ('上課中', '已完成') -
+     )) as remaining_credit 
+from 
+    "CREDIT_PURCHASE" 
+where 
+    "CREDIT_PURCHASE".user_id = (select id from "USER" where name = '王小明')
+group by 
+    "CREDIT_PURCHASE".user_id; 
