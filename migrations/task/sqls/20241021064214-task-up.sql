@@ -120,17 +120,11 @@ insert into "COACH_LINK_SKILL" (coach_id, skill_id) values
  insert into "COACH_LINK_SKILL" (coach_id, skill_id) values 
 (
   (select id from "COACH" where user_id = (select id from "USER" where email = 'muscle@hexschooltest.io')),
-  (select id from "SKILL" where name = '重訓')
-),(
-  (select id from "COACH" where user_id = (select id from "USER" where email = 'muscle@hexschooltest.io')),
   (select id from "SKILL" where name = '瑜伽')
 ); 
     -- 3. 教練`Q太郎` 需要有 `有氧運動` 與 `復健訓練` 專長
  insert into "COACH_LINK_SKILL" (coach_id, skill_id) values 
 (
-  (select id from "COACH" where user_id = (select id from "USER" where email = 'starplatinum@hexschooltest.io')),
-  (select id from "SKILL" where name = '重訓')
-),(
   (select id from "COACH" where user_id = (select id from "USER" where email = 'starplatinum@hexschooltest.io')),
   (select id from "SKILL" where name = '有氧運動')
 ),(
