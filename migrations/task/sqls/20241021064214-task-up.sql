@@ -175,7 +175,7 @@ values ((select id from "USER" where email = 'lee2000@hexschooltest.io'),
   '2024-11-25 16:00:00',
   10,
   'https://test-meeting.test.io'
-)
+);
 
 
 -- ████████  █████   █    █████ 
@@ -195,7 +195,6 @@ values ((select id from "USER" where email = 'lee2000@hexschooltest.io'),
         -- 1. 預約人設為 `好野人`
         -- 2. 預約時間`booking_at` 設為2024-11-24 16:00:00
         -- 3. 狀態`status` 設定為即將授課
-
 insert into "COURSE_BOOKING" (user_id, course_id, booking_at, status)
 values
 (
@@ -236,7 +235,6 @@ where user_id = (select id from "USER" where name = '王小明');
 -- 5-5. 修改：`王小明` 現在已經加入直播室了，請在`COURSE_BOOKING`更新該筆預約資料（請注意，不要更新到已經取消的紀錄）：
     -- 1. 請在該筆預約記錄他的加入直播室時間 `join_at` 設為2024-11-25 14:01:59
     -- 2. 狀態`status` 設定為上課中
-
 update "COURSE_BOOKING"
 set join_at = '2024-11-25 14:01:59', status = '上課中'
 where user_id = (select id from "USER" where name = '王小明') 
@@ -266,7 +264,6 @@ group by "COURSE_BOOKING".user_id;
     -- from ( 用戶王小明的購買堂數 ) as "CREDIT_PURCHASE"
     -- inner join ( 用戶王小明的已使用堂數) as "COURSE_BOOKING"
     -- on "COURSE_BOOKING".user_id = "CREDIT_PURCHASE".user_id;
-
 select 
     "CREDIT_PURCHASE".user_id, 
     (sum("CREDIT_PURCHASE".purchased_credits) 
