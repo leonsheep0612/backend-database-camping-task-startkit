@@ -271,7 +271,7 @@ select
      (select COUNT(*) 
       from "COURSE_BOOKING" 
       where user_id = "CREDIT_PURCHASE".user_id 
-        and status in ('上課中', '已完成') -
+        and status in ('上課中', '已完成')
      )) as remaining_credit 
 from 
     "CREDIT_PURCHASE" 
@@ -279,3 +279,66 @@ where
     "CREDIT_PURCHASE".user_id = (select id from "USER" where name = '王小明')
 group by 
     "CREDIT_PURCHASE".user_id; 
+
+    
+-- ████████  █████   █     ███  
+--   █ █   ██    █  █     █     
+--   █ █████ ███ ███      ████  
+--   █ █   █    ██  █     █   █ 
+--   █ █   █████ █   █     ███  
+-- ===================== ====================
+-- 6. 後台報表
+-- 6-1 查詢：查詢專長為重訓的教練，並按經驗年數排序，由資深到資淺（需使用 inner join 與 order by 語法)
+-- 顯示須包含以下欄位： 教練名稱 , 經驗年數, 專長名稱
+select 
+"USER"."name" as 教練名稱
+,"COACH".experience_years as 經驗年數
+,"SKILL".name as 專長名稱
+from "COACH_LINK_SKILL"
+inner join "SKILL"  on "SKILL".id =  "COACH_LINK_SKILL".skill_id 
+inner join  "COACH" on "COACH".id =  "COACH_LINK_SKILL".coach_id 
+inner join  "USER"  on "USER".id = "COACH".user_id 
+where "COACH_LINK_SKILL".skill_id = (select id from "SKILL" where name = '重訓')
+order by "COACH".experience_years desc;
+
+
+-- 6-2 查詢：查詢每種專長的教練數量，並只列出教練數量最多的專長（需使用 group by, inner join 與 order by 與 limit 語法）
+-- 顯示須包含以下欄位： 專長名稱, coach_total
+select 
+"SKILL".name as 專長名稱
+,count(*) as coach_total
+from "COACH_LINK_SKILL"
+inner join "SKILL"  on "SKILL".id =  "COACH_LINK_SKILL".skill_id 
+group  by "SKILL"."name"
+order  by coach_total desc 
+limit 1;
+
+
+
+-- 6-3. 查詢：計算 12 月份組合包方案的銷售數量
+-- 顯示須包含以下欄位： 組合包方案名稱, 銷售數量
+-- 建立時間為12月更改為12月份
+select
+"CREDIT_PACKAGE".name as "組合包方案名稱",
+count(*) as 銷售數量
+from "CREDIT_PURCHASE"
+inner join "CREDIT_PACKAGE" on "CREDIT_PACKAGE".id = "CREDIT_PURCHASE".credit_package_id
+where "CREDIT_PURCHASE".created_at >= '2024-12-01 00:00:00' and "CREDIT_PURCHASE".created_at <= '2024-12-30 23:59:59'
+group by "CREDIT_PACKAGE".name;
+
+
+-- 6-4. 查詢：計算 12 月份總營收（使用 purchase_at 欄位統計）
+-- 顯示須包含以下欄位： 總營收
+select 
+sum(price_paid) as 總營收
+from "CREDIT_PURCHASE" 
+where "CREDIT_PURCHASE".purchase_at >= '2024-12-01 00:00:00'
+and "CREDIT_PURCHASE".purchase_at <= '2024-12-30 00:00:00';
+
+-- 6-5. 查詢：計算 12 月份有預約課程的會員人數（需使用 Distinct，並用 created_at 和 status 欄位統計）
+-- 顯示須包含以下欄位： 預約會員人數
+select 
+count(distinct("COURSE_BOOKING".user_id)) as 會員預約人數
+from "COURSE_BOOKING"
+where "COURSE_BOOKING".created_at >= '2024-12-01 00:00:00' and "COURSE_BOOKING".created_at <= '2024-12-30 23:59:59'
+and  "COURSE_BOOKING".status != '課程已取消';
