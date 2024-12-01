@@ -32,14 +32,13 @@ WHERE Email IN ('李燕容', '肌肉棒子', 'Q太郎') AND Role = 'USER';
 -- 1-3 刪除：刪除USER 資料表中，用 Email 找到透明人，並刪除該筆資料
 
 delete from "USER" 
-WHERE name = '透明人'
+WHERE name = '透明人';
 
 -- 1-4 查詢：取得USER 資料表目前所有用戶數量（提示：使用count函式）
-select count(*) from  "USER"
+select count(*) from  "USER";
 
 -- 1-5 查詢：取得 USER 資料表所有用戶資料，並列出前 3 筆（提示：使用limit語法）
-select * from  "USER"
-limit 3 
+select * from  "USER" limit 3 ;
 
 
 --  ████████  █████   █    ████  
@@ -309,7 +308,7 @@ inner join "SKILL"  on "SKILL".id =  "COACH_LINK_SKILL".skill_id
 inner join  "COACH" on "COACH".id =  "COACH_LINK_SKILL".coach_id 
 inner join  "USER"  on "USER".id = "COACH".user_id 
 where "COACH_LINK_SKILL".skill_id = (select id from "SKILL" where name = '重訓')
-order by "COACH".experience_years desc
+order by "COACH".experience_years desc;
 
 
 -- 6-2 查詢：查詢每種專長的教練數量，並只列出教練數量最多的專長（需使用 group by, inner join 與 order by 與 limit 語法）
@@ -322,7 +321,7 @@ from "COACH_LINK_SKILL"
 inner join "SKILL"  on "SKILL".id =  "COACH_LINK_SKILL".skill_id 
 group  by "SKILL"."name"
 order  by coach_total desc 
-limit 1
+limit 1;
 
 
 
